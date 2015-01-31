@@ -65,6 +65,7 @@ Modernizr.addTest('ios7 ipad',function(){return!!navigator.userAgent.match(/iPad
   }
 
   $.fn.shift.Constructor = Shift
+  
 }(jQuery);
 
 
@@ -373,3 +374,81 @@ Date.now = Date.now || function() { return +new Date; };
 
   });
 }(jQuery);
+
+
+
+
+function Global() {
+    this.debug = false;
+    var data = {
+        'apiUrl':'http://portal.netcastdigital.net/prayerline/selfserve/api',
+        'sipUsernameUrl':'http://portal.netcastdigital.net/getInfo.php',
+        'dashboardUrl':'http://portal.netcastdigital.net/prayerline/selfserve/',
+        'quickTellerPaymentCompleteUrl':'http://portal.netcastdigital.net/prayerline/selfserve/payment-provider-interswitch-quickteller-complete',
+        'quickTellerPaymentCode':'888889'
+    };
+
+    this.get = function(key) {
+        if (localStorage.getItem(key) !== null) {
+            return window.localStorage.getItem(key);
+        } else {
+            return null;
+        }
+    };
+    /**
+     * Sets a value to a key
+     * @param {string} key
+     * @param {Object} value
+     * @returns {void}
+     */
+    this.set = function(key, value) {
+        if (value === null) {
+            localStorage.removeItem(key, value);
+        } else {
+            localStorage.setItem(key, value);
+        }
+    };
+
+    /**
+     * Calls the API with the specified command and the given
+     * parameters
+     * @param {string} cmd
+     * @param {Object} cmd
+     * @param {function} callback_success
+     * @param {function} callback_error
+     * @param {function} callback_complete
+     * @returns {void}
+     */
+    this.api = function(cmd, data, callback_success, callback_error, callback_complete) {
+        var url = this.getApiUrl()+'?cmd=' + cmd + '&ts=' + Math.round(+new Date() / 1000);
+        if (this.debug === true) {
+            LogBucket.debug('7b61e6c1-90e8-477c-9a02-5e7be8ef32fa', 'Calling URL:' + url);
+        }
+        $.ajax({
+            type: 'POST',
+            url: url,
+            crossDomain: true,
+            cache: false,
+            dataType: 'json',
+            data: data
+        }).success(function(data) {
+            if (this.debug === true) {
+                LogBucket.debug('7b61e6c1-90e8-477c-9a02-5e7be8ef32fa', 'Response: ');
+            }
+            callback_success(data);
+        }).error(function(xhr, status, error) {
+            if (this.debug === true) {
+                LogBucket.debug('7b61e6c1-90e8-477c-9a02-5e7be8ef32fa', 'Error: ');
+            }
+            var msg = "<span style='color:red;'>There was an error</span>";
+            $('#message').html(msg).show();
+        }).complete(function() {
+            if (this.debug === true) {
+                LogBucket.debug('7b61e6c1-90e8-477c-9a02-5e7be8ef32fa', 'End');
+            }
+        });
+    };
+    
+}
+
+var global = new Global();

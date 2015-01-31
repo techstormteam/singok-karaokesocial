@@ -30,7 +30,7 @@ var app = {
     }
 };
 		//alert(global.get('count'));
-	if(global.get('count') == 1)
+	if(global.get('count') !== null)
 	{
 window.open("index.html");
 	}
